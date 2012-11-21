@@ -7,21 +7,38 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C00D954A165A32DD009F59FF /* BSRefreshableClipView.m in Sources */ = {isa = PBXBuildFile; fileRef = C00D9549165A32DD009F59FF /* BSRefreshableClipView.m */; };
+		C00D9552165CC61B009F59FF /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C057343D165A23B000087E78 /* Cocoa.framework */; };
+		C00D955C165CC626009F59FF /* BSRefreshableScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = C057345C165A23DF00087E78 /* BSRefreshableScrollView.m */; };
+		C00D955D165CC628009F59FF /* BSRefreshableClipView.m in Sources */ = {isa = PBXBuildFile; fileRef = C00D9549165A32DD009F59FF /* BSRefreshableClipView.m */; };
+		C00D955E165CC62C009F59FF /* BSRefreshableClipView.h in Headers */ = {isa = PBXBuildFile; fileRef = C00D9548165A32DD009F59FF /* BSRefreshableClipView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C00D955F165CC631009F59FF /* BSRefreshableScrollView_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = C00D954C165A41B7009F59FF /* BSRefreshableScrollView_Private.h */; };
+		C00D9560165CC637009F59FF /* BSRefreshableScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = C057345B165A23DF00087E78 /* BSRefreshableScrollView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C00D9561165CC663009F59FF /* libRefreshableScrollView.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C00D9551165CC61B009F59FF /* libRefreshableScrollView.a */; };
 		C057343E165A23B000087E78 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C057343D165A23B000087E78 /* Cocoa.framework */; };
 		C0573448165A23B000087E78 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C0573446165A23B000087E78 /* InfoPlist.strings */; };
 		C057344A165A23B000087E78 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C0573449165A23B000087E78 /* main.m */; };
 		C057344E165A23B000087E78 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = C057344C165A23B000087E78 /* Credits.rtf */; };
 		C0573451165A23B000087E78 /* BSAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C0573450165A23B000087E78 /* BSAppDelegate.m */; };
 		C0573454165A23B000087E78 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = C0573452165A23B000087E78 /* MainMenu.xib */; };
-		C057345D165A23DF00087E78 /* BSRefreshableScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = C057345C165A23DF00087E78 /* BSRefreshableScrollView.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C00D9562165CC68F009F59FF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C0573432165A23AF00087E78 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C00D9550165CC61B009F59FF;
+			remoteInfo = RefreshableScrollView;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		C00D9548165A32DD009F59FF /* BSRefreshableClipView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BSRefreshableClipView.h; sourceTree = "<group>"; };
 		C00D9549165A32DD009F59FF /* BSRefreshableClipView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BSRefreshableClipView.m; sourceTree = "<group>"; };
 		C00D954C165A41B7009F59FF /* BSRefreshableScrollView_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BSRefreshableScrollView_Private.h; sourceTree = "<group>"; };
-		C057343A165A23AF00087E78 /* RefreshableScrollView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RefreshableScrollView.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C00D9551165CC61B009F59FF /* libRefreshableScrollView.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRefreshableScrollView.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		C00D9555165CC61B009F59FF /* RefreshableScrollView-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RefreshableScrollView-Prefix.pch"; sourceTree = "<group>"; };
+		C057343A165A23AF00087E78 /* RefreshableScrollViewDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RefreshableScrollViewDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C057343D165A23B000087E78 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		C0573440165A23B000087E78 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		C0573441165A23B000087E78 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -39,10 +56,19 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		C00D954E165CC61B009F59FF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C00D9552165CC61B009F59FF /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C0573437165A23AF00087E78 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C00D9561165CC663009F59FF /* libRefreshableScrollView.a in Frameworks */,
 				C057343E165A23B000087E78 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -50,11 +76,28 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C00D9553165CC61B009F59FF /* RefreshableScrollView */ = {
+			isa = PBXGroup;
+			children = (
+				C00D9554165CC61B009F59FF /* Supporting Files */,
+			);
+			path = RefreshableScrollView;
+			sourceTree = "<group>";
+		};
+		C00D9554165CC61B009F59FF /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				C00D9555165CC61B009F59FF /* RefreshableScrollView-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		C0573431165A23AF00087E78 = {
 			isa = PBXGroup;
 			children = (
 				C057345A165A23C900087E78 /* Views */,
 				C0573443165A23B000087E78 /* RefreshableScrollView */,
+				C00D9553165CC61B009F59FF /* RefreshableScrollView */,
 				C057343C165A23AF00087E78 /* Frameworks */,
 				C057343B165A23AF00087E78 /* Products */,
 			);
@@ -63,7 +106,8 @@
 		C057343B165A23AF00087E78 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C057343A165A23AF00087E78 /* RefreshableScrollView.app */,
+				C057343A165A23AF00087E78 /* RefreshableScrollViewDemo.app */,
+				C00D9551165CC61B009F59FF /* libRefreshableScrollView.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -124,10 +168,40 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		C00D954F165CC61B009F59FF /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C00D955E165CC62C009F59FF /* BSRefreshableClipView.h in Headers */,
+				C00D955F165CC631009F59FF /* BSRefreshableScrollView_Private.h in Headers */,
+				C00D9560165CC637009F59FF /* BSRefreshableScrollView.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
-		C0573439165A23AF00087E78 /* RefreshableScrollView */ = {
+		C00D9550165CC61B009F59FF /* RefreshableScrollView */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C0573457165A23B000087E78 /* Build configuration list for PBXNativeTarget "RefreshableScrollView" */;
+			buildConfigurationList = C00D9559165CC61B009F59FF /* Build configuration list for PBXNativeTarget "RefreshableScrollView" */;
+			buildPhases = (
+				C00D954D165CC61B009F59FF /* Sources */,
+				C00D954E165CC61B009F59FF /* Frameworks */,
+				C00D954F165CC61B009F59FF /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RefreshableScrollView;
+			productName = RefreshableScrollView;
+			productReference = C00D9551165CC61B009F59FF /* libRefreshableScrollView.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		C0573439165A23AF00087E78 /* RefreshableScrollViewDemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C0573457165A23B000087E78 /* Build configuration list for PBXNativeTarget "RefreshableScrollViewDemo" */;
 			buildPhases = (
 				C0573436165A23AF00087E78 /* Sources */,
 				C0573437165A23AF00087E78 /* Frameworks */,
@@ -136,10 +210,11 @@
 			buildRules = (
 			);
 			dependencies = (
+				C00D9563165CC68F009F59FF /* PBXTargetDependency */,
 			);
-			name = RefreshableScrollView;
+			name = RefreshableScrollViewDemo;
 			productName = RefreshableScrollView;
-			productReference = C057343A165A23AF00087E78 /* RefreshableScrollView.app */;
+			productReference = C057343A165A23AF00087E78 /* RefreshableScrollViewDemo.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -164,7 +239,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C0573439165A23AF00087E78 /* RefreshableScrollView */,
+				C0573439165A23AF00087E78 /* RefreshableScrollViewDemo */,
+				C00D9550165CC61B009F59FF /* RefreshableScrollView */,
 			);
 		};
 /* End PBXProject section */
@@ -183,18 +259,33 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		C00D954D165CC61B009F59FF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C00D955C165CC626009F59FF /* BSRefreshableScrollView.m in Sources */,
+				C00D955D165CC628009F59FF /* BSRefreshableClipView.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C0573436165A23AF00087E78 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				C057344A165A23B000087E78 /* main.m in Sources */,
 				C0573451165A23B000087E78 /* BSAppDelegate.m in Sources */,
-				C057345D165A23DF00087E78 /* BSRefreshableScrollView.m in Sources */,
-				C00D954A165A32DD009F59FF /* BSRefreshableClipView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C00D9563165CC68F009F59FF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C00D9550165CC61B009F59FF /* RefreshableScrollView */;
+			targetProxy = C00D9562165CC68F009F59FF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		C0573446165A23B000087E78 /* InfoPlist.strings */ = {
@@ -224,6 +315,26 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		C00D955A165CC61B009F59FF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RefreshableScrollView/RefreshableScrollView-Prefix.pch";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		C00D955B165CC61B009F59FF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RefreshableScrollView/RefreshableScrollView-Prefix.pch";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		C0573455165A23B000087E78 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -292,6 +403,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RefreshableScrollView/RefreshableScrollView-Prefix.pch";
 				INFOPLIST_FILE = "RefreshableScrollView/RefreshableScrollView-Info.plist";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -304,6 +416,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RefreshableScrollView/RefreshableScrollView-Prefix.pch";
 				INFOPLIST_FILE = "RefreshableScrollView/RefreshableScrollView-Info.plist";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -312,6 +425,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		C00D9559165CC61B009F59FF /* Build configuration list for PBXNativeTarget "RefreshableScrollView" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C00D955A165CC61B009F59FF /* Debug */,
+				C00D955B165CC61B009F59FF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		C0573435165A23AF00087E78 /* Build configuration list for PBXProject "RefreshableScrollView" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -321,7 +443,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C0573457165A23B000087E78 /* Build configuration list for PBXNativeTarget "RefreshableScrollView" */ = {
+		C0573457165A23B000087E78 /* Build configuration list for PBXNativeTarget "RefreshableScrollViewDemo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C0573458165A23B000087E78 /* Debug */,
