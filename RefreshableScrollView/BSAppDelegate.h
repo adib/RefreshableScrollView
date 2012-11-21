@@ -17,5 +17,6 @@
 @property (nonatomic,weak) IBOutlet BSRefreshableScrollView* refreshableScrollView;
 
 - (IBAction)stopRefreshTop:(id)sender;
+- (IBAction)stopRefreshBottom:(id)sender;
 
 @end

@@ -26,14 +26,14 @@
     }
     NSClipView* const clipView = self.contentView;
     const NSRect clipViewBounds = clipView.bounds;
-
-    switch (refreshableSide) {
-        case BSRefreshableScrollViewSideTop:
-            self.refreshingSides &= ~BSRefreshableScrollViewSideTop;
-            [self.topProgressIndicator setDisplayedWhenStopped:NO];
-            [self.topProgressIndicator stopAnimation:self];
-            if(clipViewBounds.origin.y >= 0) {
-                // fake scrolling
+    
+    void (^stopRefresh)(NSProgressIndicator* progressIndicator, BOOL (^shouldScroll)()) = ^(NSProgressIndicator* progressIndicator,BOOL (^shouldScroll)()) {
+        self.refreshingSides &= ~refreshableSide;
+        [progressIndicator stopAnimation:self];
+        [progressIndicator setDisplayedWhenStopped:NO];
+        if (shouldScroll()) {
+            // fake scrolling
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 CGEventRef cgEvent   = CGEventCreateScrollWheelEvent(NULL,
                                                                      kCGScrollEventUnitLine,
                                                                      2,
@@ -43,9 +43,20 @@
                 NSEvent *scrollEvent = [NSEvent eventWithCGEvent:cgEvent];
                 [self scrollWheel:scrollEvent];
                 CFRelease(cgEvent);
-            }
+            }];
+        }
+    };
+
+    switch (refreshableSide) {
+        case BSRefreshableScrollViewSideTop:
+            stopRefresh(self.topProgressIndicator,^{
+                return (BOOL) (clipViewBounds.origin.y > 0);
+            });
             break;
-            
+        case BSRefreshableScrollViewSideBottom:
+            stopRefresh(self.bottomProgressIndicator,^{
+                return (BOOL) (clipViewBounds.origin.y < 0);
+            });            
         default:
             break;
     }
@@ -123,74 +134,58 @@
     
     if (eventPhase & NSEventPhaseChanged) {
         
-        void (^setupProgressIndicator)(NSProgressIndicator* progressIndicator,float maxValue,float currentValue) = ^(NSProgressIndicator* progressIndicator,float maxValue,float currentValue) {
-            if (progressIndicator.isIndeterminate) {
-                [progressIndicator setIndeterminate:NO];
-                [progressIndicator setDisplayedWhenStopped:YES];
-                progressIndicator.minValue = 0;
-                progressIndicator.maxValue = maxValue;
-            }
-            [progressIndicator setAlphaValue:1];
+        void (^startScrollPhase)(BSRefreshableScrollViewSide refreshSide,NSProgressIndicator* progressIndicator,float progressMaxValue,float progressCurrentValue, BOOL (^shouldTriggerRefresh)(void)) = ^(BSRefreshableScrollViewSide refreshSide,NSProgressIndicator* progressIndicator,float progressMaxValue,float progressCurrentValue, BOOL (^shouldTriggerRefresh)(void)) {
             
-            progressIndicator.doubleValue = currentValue;
+            if(!(self.refreshingSides & refreshSide)  && (self.refreshableSides & refreshSide) ) {
+                // not refreshing top
+                
+                if (progressIndicator.isIndeterminate) {
+                    [progressIndicator setIndeterminate:NO];
+                    [progressIndicator setDisplayedWhenStopped:YES];
+                    progressIndicator.minValue = 0;
+                    progressIndicator.maxValue = progressMaxValue;
+                }
+                [progressIndicator setAlphaValue:1];
+                progressIndicator.doubleValue = progressCurrentValue;
+
+                if (shouldTriggerRefresh()) {
+                    self.triggeredRefreshingSides |= refreshSide;
+                }
+            }
         };
         
         if (clipViewBounds.origin.y > 0  ) {
             // showing top area
-            const BSRefreshableScrollViewSide refreshSide = BSRefreshableScrollViewSideTop;
-            if(!(self.refreshingSides & refreshSide)  && (self.refreshableSides & refreshSide) ) {
-                // not refreshing top
-                setupProgressIndicator(self.topProgressIndicator,headerFrame.size.height,clipViewBounds.origin.y);
-                
-                if (clipViewBounds.origin.y > headerFrame.size.height) {
-                    self.triggeredRefreshingSides |= refreshSide;
-                }
-            }
+            
+            startScrollPhase(BSRefreshableScrollViewSideTop,self.topProgressIndicator,headerFrame.size.height,clipViewBounds.origin.y, ^{
+                return  (BOOL) (clipViewBounds.origin.y > headerFrame.size.height);
+            });
+            
         } else if (clipViewBounds.origin.y < 0) {
             // scrolling to bottom
-            const BSRefreshableScrollViewSide refreshSide = BSRefreshableScrollViewSideBottom;
-            if( !(self.refreshingSides & refreshSide) && (self.refreshableSides & refreshSide) ) {
-                // not refreshing top
-                setupProgressIndicator(self.bottomProgressIndicator,footerFrame.size.height,-clipViewBounds.origin.y);
-                
-                if (clipViewBounds.origin.y < -footerFrame.size.height) {
-                    self.triggeredRefreshingSides |= refreshSide;
-                }
-            }
+            
+            startScrollPhase(BSRefreshableScrollViewSideBottom,self.bottomProgressIndicator,footerFrame.size.height,-clipViewBounds.origin.y, ^{
+                return  (BOOL) (clipViewBounds.origin.y < -footerFrame.size.height);
+            });
         }
     } else if(eventPhase & NSEventPhaseEnded) {
-        BSRefreshableScrollViewSide refreshingSides = self.refreshingSides;
         
-        void (^completeScrollPhase)(BSRefreshableScrollViewSide refreshSide,SEL progressIndicatorAccessor) = ^(BSRefreshableScrollViewSide refreshSide,SEL progressIndicatorAccessor) {
-            
-        };
-
-        if (clipViewBounds.origin.y > 0) {
-            // showing top area
-            const BSRefreshableScrollViewSide refreshSide = BSRefreshableScrollViewSideTop;
-
-            if(!(refreshingSides & refreshSide) && (self.refreshableSides & refreshSide)) {
-                // not refreshing top and OK to refresh
+        void (^completeScrollPhase)(BSRefreshableScrollViewSide refreshSide,NSProgressIndicator* progressIndicator) = ^(BSRefreshableScrollViewSide refreshSide,NSProgressIndicator* progressIndicator) {
+            if(!(self.refreshingSides & refreshSide) && (self.refreshableSides & refreshSide)) {
+                // not refreshing and OK to refresh
                 
-                NSProgressIndicator const* progressIndicator = self.topProgressIndicator;
                 // if triggered
-                
-                BSRefreshableScrollViewSide triggeredRefreshingSides = self.triggeredRefreshingSides;
-                if (triggeredRefreshingSides & refreshSide) {
+                if (self.triggeredRefreshingSides & refreshSide) {
                     
-                    refreshingSides |= refreshSide;
-                    triggeredRefreshingSides &= ~refreshSide;
-                    
-                    self.refreshingSides = refreshingSides;
-                    self.triggeredRefreshingSides = triggeredRefreshingSides;
+                    self.refreshingSides |= refreshSide;
+                    self.triggeredRefreshingSides &= ~refreshSide;
                     
                     [progressIndicator setIndeterminate:YES];
                     [progressIndicator startAnimation:self];
                     
-                    
                     id<BSRefreshableScrollViewDelegate> delegate = self.refreshableDelegate;
                     if ([delegate respondsToSelector:@selector(scrollView:startRefreshSide:)]) {
-                        [delegate scrollView:self startRefreshSide:BSRefreshableScrollViewSideTop];
+                        [delegate scrollView:self startRefreshSide:refreshSide];
                     }
                 } else  {
                     // un-triggered
@@ -204,6 +199,15 @@
                     
                 }
             }
+
+        };
+
+        if (clipViewBounds.origin.y > 0) {
+            // showing top area
+            completeScrollPhase(BSRefreshableScrollViewSideTop,self.topProgressIndicator);
+        } else if(clipViewBounds.origin.y < 0) {
+            // showing bottom area
+            completeScrollPhase(BSRefreshableScrollViewSideBottom,self.bottomProgressIndicator);
         }
     }
     [super scrollWheel:theEvent];
@@ -240,7 +244,7 @@
 
 -(NSProgressIndicator *)topProgressIndicator
 {
-    if (!_topProgressIndicator) {
+    if (!_topProgressIndicator && (self.refreshableSides & BSRefreshableScrollViewSideTop)) {
         _topProgressIndicator = [NSProgressIndicator new];
         [_topProgressIndicator setTranslatesAutoresizingMaskIntoConstraints:NO];
         [_topProgressIndicator setIndeterminate:YES];
@@ -259,7 +263,7 @@
 
 -(NSProgressIndicator *)bottomProgressIndicator
 {
-    if (!_bottomProgressIndicator && (self.refreshableSides & BSRefreshableScrollViewSideTop)) {
+    if (!_bottomProgressIndicator && (self.refreshableSides & BSRefreshableScrollViewSideBottom)) {
         _bottomProgressIndicator = [NSProgressIndicator new];
         [_bottomProgressIndicator setTranslatesAutoresizingMaskIntoConstraints:NO];
         [_bottomProgressIndicator setIndeterminate:YES];
@@ -286,7 +290,7 @@
 
 -(NSView *)footerView
 {
-    if (!_footerView && (self.refreshingSides & BSRefreshableScrollViewSideBottom)) {
+    if (!_footerView && (self.refreshableSides & BSRefreshableScrollViewSideBottom)) {
         _footerView = [self newEdgeViewForSide:BSRefreshableScrollViewSideBottom progressIndicator:self.bottomProgressIndicator];
     }
     return _footerView;

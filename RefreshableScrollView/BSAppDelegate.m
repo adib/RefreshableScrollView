@@ -30,4 +30,10 @@
 {
     [self.refreshableScrollView stopRefreshingSide:BSRefreshableScrollViewSideTop];
 }
+
+- (IBAction)stopRefreshBottom:(id)sender
+{
+    [self.refreshableScrollView stopRefreshingSide:BSRefreshableScrollViewSideBottom];
+}
+
 @end
