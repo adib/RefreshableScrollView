@@ -4,14 +4,26 @@
 //
 //  Created by Sasmito Adibowo on 19-11-12.
 //  Copyright (c) 2012 Basil Salad Software. All rights reserved.
+//  http://basilsalad.com
 //
+//  Licensed under the BSD License <http://www.opensource.org/licenses/bsd-license>
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+//  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+//  SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+//  TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+//  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+//  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+//  THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+
 
 #if !__has_feature(objc_arc)
 #error Need automatic reference counting to compile this.
 #endif
 
 #import "BSRefreshableClipView.h"
-
 #import "BSRefreshableScrollView_Private.h"
 
 
@@ -86,7 +98,6 @@
             return nil;
     }
     
-    
     if (edgeSide & BSRefreshableScrollViewSideTop) {
         edgeViewFrame.origin.y = contentViewBounds.size.height;
     } else if (edgeSide & BSRefreshableScrollViewSideBottom) {
@@ -95,7 +106,6 @@
     // future expansion: check for left and right edges here.
     
     edgeView.frame = edgeViewFrame;
-    
     
     [edgeView addSubview:indicatorView];
     
@@ -110,7 +120,6 @@
     [contentView addSubview:edgeView];
 
     return edgeView;
-    
 }
 
 
@@ -121,6 +130,7 @@
     
 }
 
+
 #pragma mark NSResponder
 
 -(void)scrollWheel:(NSEvent *)theEvent
@@ -130,7 +140,6 @@
     const NSRect clipViewBounds = clipView.bounds;
     const NSRect headerFrame = self.headerView.frame;
     const NSRect footerFrame = self.footerView.frame;
-    
     
     if (eventPhase & NSEventPhaseChanged) {
         
@@ -213,13 +222,11 @@
     [super scrollWheel:theEvent];
 }
 
+
 #pragma mark NSView
 
--(void)viewDidMoveToWindow
-{
-    [super viewDidMoveToWindow];
-    [self headerView];
-}
+// Place NSView overrides here – currently empty 😊
+
 
 #pragma mark NSScrollView
 
@@ -237,6 +244,7 @@
     }
     return superClipView;
 }
+
 
 #pragma mark Property Access
 
@@ -276,6 +284,7 @@
     return _bottomProgressIndicator;
 }
 
+
 @synthesize headerView = _headerView;
 
 -(NSView *)headerView
@@ -285,6 +294,7 @@
     }
     return _headerView;
 }
+
 
 @synthesize footerView = _footerView;
 
