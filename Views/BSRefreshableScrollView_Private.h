@@ -33,5 +33,7 @@
 @property (nonatomic,readwrite) BSRefreshableScrollViewSide refreshingSides;
 @property (nonatomic,readwrite) BSRefreshableScrollViewSide triggeredRefreshingSides;
 
+@property (nonatomic,readwrite) BSRefreshableScrollViewSide activatedRefreshingSides;
+
 
 @end

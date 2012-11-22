@@ -31,25 +31,22 @@
 
 @synthesize refreshingSides = _refreshingSides;
 
--(void) stopRefreshingSide:(BSRefreshableScrollViewSide) refreshableSide 
+-(void) stopRefreshingSide:(BSRefreshableScrollViewSide) refreshableSides
 {
-    if (!(self.refreshingSides & refreshableSide)) {
-        return;
-    }
     NSClipView* const clipView = self.contentView;
     const NSRect clipViewBounds = clipView.bounds;
     
-    void (^stopRefresh)(NSProgressIndicator* progressIndicator, BOOL (^shouldScroll)()) = ^(NSProgressIndicator* progressIndicator,BOOL (^shouldScroll)()) {
-        self.refreshingSides &= ~refreshableSide;
+    void (^stopRefresh)(BSRefreshableScrollViewSide side, NSProgressIndicator* progressIndicator, BOOL (^shouldScroll)()) = ^(BSRefreshableScrollViewSide side, NSProgressIndicator* progressIndicator, BOOL (^shouldScroll)()) {
+        self.refreshingSides &= ~side;
         [progressIndicator stopAnimation:self];
         [progressIndicator setDisplayedWhenStopped:NO];
         if (shouldScroll()) {
             // fake scrolling
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 int scrollAmount = 0;
-                if (refreshableSide  & BSRefreshableScrollViewSideTop) {
+                if (side  & BSRefreshableScrollViewSideTop) {
                     scrollAmount = 1;
-                } else if(refreshableSide  & BSRefreshableScrollViewSideBottom) {
+                } else if(side  & BSRefreshableScrollViewSideBottom) {
                     scrollAmount = -1;
                 }
                 CGEventRef cgEvent   = CGEventCreateScrollWheelEvent(NULL,
@@ -64,20 +61,21 @@
             }];
         }
     };
-
-    switch (refreshableSide) {
-        case BSRefreshableScrollViewSideTop:
-            stopRefresh(self.topProgressIndicator,^{
-                return (BOOL) (clipViewBounds.origin.y < 0);
-            });
-            break;
-        case BSRefreshableScrollViewSideBottom:
-            stopRefresh(self.bottomProgressIndicator,^{
-                return (BOOL) (clipViewBounds.origin.y > 0);
-            });            
-        default:
-            break;
+    
+    BSRefreshableScrollViewSide refreshingSides = self.refreshingSides;
+    
+    if (refreshingSides & BSRefreshableScrollViewSideTop) {
+        stopRefresh(BSRefreshableScrollViewSideTop,self.topProgressIndicator,^{
+            return (BOOL) (clipViewBounds.origin.y < 0);
+        });
     }
+
+    if (refreshingSides & BSRefreshableScrollViewSideBottom) {
+        stopRefresh(BSRefreshableScrollViewSideBottom,self.bottomProgressIndicator,^{
+            return (BOOL) (clipViewBounds.origin.y > 0);
+        });
+    }
+    
 }
 
 
@@ -89,7 +87,6 @@
     
     
     NSView* edgeView = [[NSView alloc] initWithFrame:NSZeroRect];
-    //NSView* edgeView = [[NSBox alloc] initWithFrame:NSZeroRect];
     [edgeView setTranslatesAutoresizingMaskIntoConstraints:NO];
     [edgeView setWantsLayer:YES];
     
@@ -161,6 +158,8 @@
                 progressIndicator.minValue = 0;
                 progressIndicator.maxValue = progressMaxValue;
                 progressIndicator.doubleValue = progressCurrentValue;
+                
+                self.activatedRefreshingSides |= refreshSide;
 
                 if (shouldTriggerRefresh()) {
                     self.triggeredRefreshingSides |= refreshSide;
@@ -189,10 +188,11 @@
 
         
         void (^completeScrollPhase)(BSRefreshableScrollViewSide refreshSide,NSProgressIndicator* progressIndicator) = ^(BSRefreshableScrollViewSide refreshSide,NSProgressIndicator* progressIndicator) {
-            if(!(self.refreshingSides & refreshSide) && (self.refreshableSides & refreshSide)) {
+            if(!(self.refreshingSides & refreshSide) && (self.activatedRefreshingSides & refreshSide)) {
                 // not refreshing and OK to refresh
                 
-                // if triggered
+                self.activatedRefreshingSides &= ~refreshSide;
+                
                 if (self.triggeredRefreshingSides & refreshSide) {
                     self.triggeredRefreshingSides &= ~refreshSide;
 
@@ -271,7 +271,6 @@
         [_topProgressIndicator setStyle:NSProgressIndicatorSpinningStyle];
         [_topProgressIndicator setControlSize: NSRegularControlSize];
         [_topProgressIndicator setDisplayedWhenStopped:YES];
-        //[_topProgressIndicator setUsesThreadedAnimation:YES];
         [_topProgressIndicator setAlphaValue:0];
         [_topProgressIndicator sizeToFit];
     }
@@ -290,7 +289,7 @@
         [_bottomProgressIndicator setStyle:NSProgressIndicatorSpinningStyle];
         [_bottomProgressIndicator setControlSize: NSRegularControlSize];
         [_bottomProgressIndicator setDisplayedWhenStopped:YES];
-        //[_bottomProgressIndicator setUsesThreadedAnimation:YES];
+        [_topProgressIndicator setAlphaValue:0];
         [_bottomProgressIndicator sizeToFit];
     }
     return _bottomProgressIndicator;
