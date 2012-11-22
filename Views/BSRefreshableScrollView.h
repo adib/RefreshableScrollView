@@ -68,7 +68,7 @@ typedef NSUInteger BSRefreshableScrollViewSide;
 
 @optional
 
--(void) scrollView:(BSRefreshableScrollView*) aScrollView startRefreshSide:(BSRefreshableScrollViewSide) refreshableSide;
+-(BOOL) scrollView:(BSRefreshableScrollView*) aScrollView startRefreshSide:(BSRefreshableScrollViewSide) refreshableSide;
 
 
 @end

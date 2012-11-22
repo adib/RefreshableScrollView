@@ -51,19 +51,21 @@
 {
     NSPoint constrained = [super constrainScrollPoint:proposedNewOrigin];
     const NSRect clipViewBounds = self.bounds;
+    NSView* const documentView = self.documentView;
+    const NSRect documentFrame = documentView.frame;
 
-    //const BSRefreshableScrollViewSide refreshableSides = [self refreshableSides];
     const BSRefreshableScrollViewSide refreshingSides = [self refreshingSides];
-    if ((refreshingSides & BSRefreshableScrollViewSideTop) && clipViewBounds.origin.y > 0) {
+    
+    if ((refreshingSides & BSRefreshableScrollViewSideTop) && proposedNewOrigin.y <= 0) {
         const NSRect headerFrame = [self headerView].frame;
-        if (clipViewBounds.origin.y > headerFrame.size.height) {
-            // have scrolled above the refresh view
-            constrained.y = headerFrame.size.height;
-        }
-    } else if((refreshingSides & BSRefreshableScrollViewSideBottom) && clipViewBounds.origin.y < 0) {
+        constrained.y = MAX(-headerFrame.size.height, proposedNewOrigin.y);
+    }
+    
+    if((refreshingSides & BSRefreshableScrollViewSideBottom) ) {
         const NSRect footerFrame = [self footerView].frame;
-        if (clipViewBounds.origin.y < -footerFrame.size.height) {
-            constrained.y = -footerFrame.size.height;
+        if (proposedNewOrigin.y >  documentFrame.size.height - clipViewBounds.size.height) {
+            const CGFloat maxHeight = documentFrame.size.height - clipViewBounds.size.height + footerFrame.size.height + 1;
+            constrained.y = MIN(maxHeight, proposedNewOrigin.y);
         }
     }
 
@@ -75,17 +77,27 @@
 {
     NSRect documentRect = [super documentRect];
     const BSRefreshableScrollViewSide refreshingSides = [self refreshingSides];
-    
     if (refreshingSides & BSRefreshableScrollViewSideTop) {
         const NSRect headerFrame = [self headerView].frame;
-        documentRect.origin.y += headerFrame.size.height;
-    } else if(refreshingSides & BSRefreshableScrollViewSideBottom) {
-        const NSRect footerFrame = [self footerView].frame;
-        documentRect.origin.y -= footerFrame.size.height;
+        documentRect.size.height += headerFrame.size.height;
+        documentRect.origin.y -= headerFrame.size.height;
     }
+    
+    if(refreshingSides & BSRefreshableScrollViewSideBottom) {
+        const NSRect footerFrame = [self footerView].frame;
+        documentRect.size.height += footerFrame.size.height ;
+    }
+     
     return documentRect;
 }
 
+
+#pragma mark NSView
+
+-(BOOL)isFlipped
+{
+    return YES;
+}
 
 
 @end

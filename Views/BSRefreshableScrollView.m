@@ -46,10 +46,16 @@
         if (shouldScroll()) {
             // fake scrolling
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                int scrollAmount = 0;
+                if (refreshableSide  & BSRefreshableScrollViewSideTop) {
+                    scrollAmount = 1;
+                } else if(refreshableSide  & BSRefreshableScrollViewSideBottom) {
+                    scrollAmount = -1;
+                }
                 CGEventRef cgEvent   = CGEventCreateScrollWheelEvent(NULL,
                                                                      kCGScrollEventUnitLine,
-                                                                     2,
                                                                      1,
+                                                                     scrollAmount,
                                                                      0);
                 
                 NSEvent *scrollEvent = [NSEvent eventWithCGEvent:cgEvent];
@@ -62,12 +68,12 @@
     switch (refreshableSide) {
         case BSRefreshableScrollViewSideTop:
             stopRefresh(self.topProgressIndicator,^{
-                return (BOOL) (clipViewBounds.origin.y > 0);
+                return (BOOL) (clipViewBounds.origin.y < 0);
             });
             break;
         case BSRefreshableScrollViewSideBottom:
             stopRefresh(self.bottomProgressIndicator,^{
-                return (BOOL) (clipViewBounds.origin.y < 0);
+                return (BOOL) (clipViewBounds.origin.y > 0);
             });            
         default:
             break;
@@ -78,34 +84,14 @@
 -(NSView*) newEdgeViewForSide:(BSRefreshableScrollViewSide) edgeSide progressIndicator:(NSProgressIndicator*) indicatorView
 {
     NSView* const contentView = self.contentView;
-    const NSRect contentViewBounds = contentView.bounds;
+    NSView* const documentView = self.documentView;
     const NSRect indicatorViewBounds = indicatorView.bounds;
     
     
     NSView* edgeView = [[NSView alloc] initWithFrame:NSZeroRect];
+    //NSView* edgeView = [[NSBox alloc] initWithFrame:NSZeroRect];
+    [edgeView setTranslatesAutoresizingMaskIntoConstraints:NO];
     [edgeView setWantsLayer:YES];
-    NSRect edgeViewFrame = NSZeroRect;
-    
-    switch (edgeSide) {
-        case BSRefreshableScrollViewSideTop:
-        case BSRefreshableScrollViewSideBottom:
-            edgeView.autoresizingMask = NSViewWidthSizable;
-            edgeViewFrame.size.width = contentViewBounds.size.width;
-            edgeViewFrame.size.height = indicatorViewBounds.size.height;
-            break;
-        default:
-            // can only specify one edge
-            return nil;
-    }
-    
-    if (edgeSide & BSRefreshableScrollViewSideTop) {
-        edgeViewFrame.origin.y = contentViewBounds.size.height;
-    } else if (edgeSide & BSRefreshableScrollViewSideBottom) {
-        edgeViewFrame.origin.y = -edgeViewFrame.size.height;
-    }
-    // future expansion: check for left and right edges here.
-    
-    edgeView.frame = edgeViewFrame;
     
     [edgeView addSubview:indicatorView];
     
@@ -115,9 +101,25 @@
     // horizontally centered
     [edgeView addConstraint:[NSLayoutConstraint constraintWithItem:indicatorView attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:edgeView attribute:NSLayoutAttributeCenterX multiplier:1 constant:0]];
     
-    
-    
     [contentView addSubview:edgeView];
+    
+    
+    if (edgeSide  &  (BSRefreshableScrollViewSideTop | BSRefreshableScrollViewSideBottom) ) {
+        // span horizontally
+        [contentView addConstraint:[NSLayoutConstraint constraintWithItem:edgeView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:contentView attribute:NSLayoutAttributeLeft multiplier:1 constant:0]];
+        [contentView addConstraint:[NSLayoutConstraint constraintWithItem:edgeView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:contentView attribute:NSLayoutAttributeRight multiplier:1 constant:0]];
+
+
+        // set height
+        [contentView addConstraint:[NSLayoutConstraint constraintWithItem:edgeView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:indicatorViewBounds.size.height]];
+
+        if (edgeSide & BSRefreshableScrollViewSideTop) {
+            // above the content view top
+            [contentView addConstraint:[NSLayoutConstraint constraintWithItem:edgeView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:documentView attribute:NSLayoutAttributeTop multiplier:1 constant:0]];
+        } else if(edgeSide & BSRefreshableScrollViewSideBottom) {
+            [contentView addConstraint:[NSLayoutConstraint constraintWithItem:edgeView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:documentView attribute:NSLayoutAttributeBottom multiplier:1 constant:0]];
+        }
+    }
 
     return edgeView;
 }
@@ -136,12 +138,14 @@
 -(void)scrollWheel:(NSEvent *)theEvent
 {
     const NSEventPhase eventPhase = theEvent.phase;
-    NSClipView* const clipView = self.contentView;
-    const NSRect clipViewBounds = clipView.bounds;
-    const NSRect headerFrame = self.headerView.frame;
-    const NSRect footerFrame = self.footerView.frame;
     
     if (eventPhase & NSEventPhaseChanged) {
+        NSClipView* const clipView = self.contentView;
+        const NSRect clipViewBounds = clipView.bounds;
+        NSView* const documentView = self.documentView;
+        const NSRect headerFrame = self.headerView.frame;
+        const NSRect footerFrame = self.footerView.frame;
+        const NSRect documentFrame = documentView.frame;
         
         void (^startScrollPhase)(BSRefreshableScrollViewSide refreshSide,NSProgressIndicator* progressIndicator,float progressMaxValue,float progressCurrentValue, BOOL (^shouldTriggerRefresh)(void)) = ^(BSRefreshableScrollViewSide refreshSide,NSProgressIndicator* progressIndicator,float progressMaxValue,float progressCurrentValue, BOOL (^shouldTriggerRefresh)(void)) {
             
@@ -151,10 +155,11 @@
                 if (progressIndicator.isIndeterminate) {
                     [progressIndicator setIndeterminate:NO];
                     [progressIndicator setDisplayedWhenStopped:YES];
-                    progressIndicator.minValue = 0;
-                    progressIndicator.maxValue = progressMaxValue;
                 }
                 [progressIndicator setAlphaValue:1];
+                
+                progressIndicator.minValue = 0;
+                progressIndicator.maxValue = progressMaxValue;
                 progressIndicator.doubleValue = progressCurrentValue;
 
                 if (shouldTriggerRefresh()) {
@@ -162,22 +167,26 @@
                 }
             }
         };
-        
-        if (clipViewBounds.origin.y > 0  ) {
+
+
+        if (clipViewBounds.origin.y < 0  ) {
             // showing top area
             
-            startScrollPhase(BSRefreshableScrollViewSideTop,self.topProgressIndicator,headerFrame.size.height,clipViewBounds.origin.y, ^{
-                return  (BOOL) (clipViewBounds.origin.y > headerFrame.size.height);
+            startScrollPhase(BSRefreshableScrollViewSideTop,self.topProgressIndicator,headerFrame.size.height,-clipViewBounds.origin.y, ^{
+                return  (BOOL) (clipViewBounds.origin.y < -headerFrame.size.height);
             });
             
-        } else if (clipViewBounds.origin.y < 0) {
+        } else if (clipViewBounds.origin.y > documentFrame.size.height - clipViewBounds.size.height) {
             // scrolling to bottom
-            
-            startScrollPhase(BSRefreshableScrollViewSideBottom,self.bottomProgressIndicator,footerFrame.size.height,-clipViewBounds.origin.y, ^{
-                return  (BOOL) (clipViewBounds.origin.y < -footerFrame.size.height);
+            CGFloat gapHeight = clipViewBounds.origin.y + clipViewBounds.size.height - documentFrame.size.height;
+            startScrollPhase(BSRefreshableScrollViewSideBottom,self.bottomProgressIndicator,footerFrame.size.height,gapHeight, ^{
+                return  (BOOL) (gapHeight > footerFrame.size.height);
             });
         }
     } else if(eventPhase & NSEventPhaseEnded) {
+        NSClipView* const clipView = self.contentView;
+        const NSRect clipViewBounds = clipView.bounds;
+
         
         void (^completeScrollPhase)(BSRefreshableScrollViewSide refreshSide,NSProgressIndicator* progressIndicator) = ^(BSRefreshableScrollViewSide refreshSide,NSProgressIndicator* progressIndicator) {
             if(!(self.refreshingSides & refreshSide) && (self.refreshableSides & refreshSide)) {
@@ -185,17 +194,21 @@
                 
                 // if triggered
                 if (self.triggeredRefreshingSides & refreshSide) {
-                    
-                    self.refreshingSides |= refreshSide;
                     self.triggeredRefreshingSides &= ~refreshSide;
-                    
-                    [progressIndicator setIndeterminate:YES];
-                    [progressIndicator startAnimation:self];
-                    
-                    id<BSRefreshableScrollViewDelegate> delegate = self.refreshableDelegate;
-                    if ([delegate respondsToSelector:@selector(scrollView:startRefreshSide:)]) {
-                        [delegate scrollView:self startRefreshSide:refreshSide];
-                    }
+
+                    [[NSOperationQueue mainQueue ] addOperationWithBlock:^{
+                        BOOL refreshStarted = NO;
+                        id<BSRefreshableScrollViewDelegate> delegate = self.refreshableDelegate;
+                        if ([delegate respondsToSelector:@selector(scrollView:startRefreshSide:)]) {
+                            refreshStarted = [delegate scrollView:self startRefreshSide:refreshSide];
+                        }
+                        
+                        if (refreshStarted) {
+                            [progressIndicator setIndeterminate:YES];
+                            [progressIndicator startAnimation:self];
+                            self.refreshingSides |= refreshSide;
+                        }
+                    }];
                 } else  {
                     // un-triggered
                     [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
@@ -208,13 +221,12 @@
                     
                 }
             }
-
         };
 
-        if (clipViewBounds.origin.y > 0) {
+        if (clipViewBounds.origin.y < 0) {
             // showing top area
             completeScrollPhase(BSRefreshableScrollViewSideTop,self.topProgressIndicator);
-        } else if(clipViewBounds.origin.y < 0) {
+        } else if(clipViewBounds.origin.y > 0) {
             // showing bottom area
             completeScrollPhase(BSRefreshableScrollViewSideBottom,self.bottomProgressIndicator);
         }
@@ -259,7 +271,7 @@
         [_topProgressIndicator setStyle:NSProgressIndicatorSpinningStyle];
         [_topProgressIndicator setControlSize: NSRegularControlSize];
         [_topProgressIndicator setDisplayedWhenStopped:YES];
-        [_topProgressIndicator setUsesThreadedAnimation:YES];
+        //[_topProgressIndicator setUsesThreadedAnimation:YES];
         [_topProgressIndicator setAlphaValue:0];
         [_topProgressIndicator sizeToFit];
     }
@@ -278,7 +290,7 @@
         [_bottomProgressIndicator setStyle:NSProgressIndicatorSpinningStyle];
         [_bottomProgressIndicator setControlSize: NSRegularControlSize];
         [_bottomProgressIndicator setDisplayedWhenStopped:YES];
-        [_bottomProgressIndicator setUsesThreadedAnimation:YES];
+        //[_bottomProgressIndicator setUsesThreadedAnimation:YES];
         [_bottomProgressIndicator sizeToFit];
     }
     return _bottomProgressIndicator;

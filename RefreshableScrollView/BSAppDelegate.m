@@ -40,6 +40,13 @@
 
 #pragma mark BSRefreshableScrollViewDelegate
 
+-(BOOL) scrollView:(BSRefreshableScrollView*) aScrollView startRefreshSide:(BSRefreshableScrollViewSide) refreshableSide
+{
+    return YES;
+}
+
+#pragma mark Action Handlers
+
 - (IBAction)stopRefreshTop:(id)sender
 {
     [self.refreshableScrollView stopRefreshingSide:BSRefreshableScrollViewSideTop];
