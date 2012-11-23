@@ -289,7 +289,7 @@
         [_bottomProgressIndicator setStyle:NSProgressIndicatorSpinningStyle];
         [_bottomProgressIndicator setControlSize: NSRegularControlSize];
         [_bottomProgressIndicator setDisplayedWhenStopped:YES];
-        [_topProgressIndicator setAlphaValue:0];
+        [_bottomProgressIndicator setAlphaValue:0];
         [_bottomProgressIndicator sizeToFit];
     }
     return _bottomProgressIndicator;
