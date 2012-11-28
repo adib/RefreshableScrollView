@@ -37,6 +37,11 @@
     const NSRect clipViewBounds = clipView.bounds;
     
     void (^stopRefresh)(BSRefreshableScrollViewSide side, NSProgressIndicator* progressIndicator, BOOL (^shouldScroll)()) = ^(BSRefreshableScrollViewSide side, NSProgressIndicator* progressIndicator, BOOL (^shouldScroll)()) {
+        
+        if ( !(self.refreshingSides & side) ) {
+            return;
+        }
+        
         self.refreshingSides &= ~side;
         [progressIndicator stopAnimation:self];
         [progressIndicator setDisplayedWhenStopped:NO];
@@ -61,16 +66,14 @@
             }];
         }
     };
-    
-    BSRefreshableScrollViewSide refreshingSides = self.refreshingSides;
-    
-    if (refreshingSides & BSRefreshableScrollViewSideTop) {
+        
+    if (refreshableSides & BSRefreshableScrollViewSideTop) {
         stopRefresh(BSRefreshableScrollViewSideTop,self.topProgressIndicator,^{
             return (BOOL) (clipViewBounds.origin.y < 0);
         });
     }
 
-    if (refreshingSides & BSRefreshableScrollViewSideBottom) {
+    if (refreshableSides & BSRefreshableScrollViewSideBottom) {
         stopRefresh(BSRefreshableScrollViewSideBottom,self.bottomProgressIndicator,^{
             return (BOOL) (clipViewBounds.origin.y > 0);
         });
