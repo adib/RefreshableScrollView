@@ -1,66 +1,64 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Refreshablescrollview by adib</title>
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
-        <h1>Refreshablescrollview</h1>
-        <p>NSScrollView subclass that supports pull-to-refresh both in top and bottom edges.</p>
+<h1>RefreshableScrollView</h1>
 
-        <p class="view"><a href="https://github.com/adib/RefreshableScrollView">View the Project on GitHub <small>adib/RefreshableScrollView</small></a></p>
+<p>An <code>NSScrollView</code> subclass that supports pull-to-refresh both in the top and bottom edges. The intended usage is for hosting a timeline-like view that shows a list of messages in reverse-chronological order.</p>
 
+<iframe width="560" height="315" src="http://www.youtube.com/embed/pCsKe3n8sEw?list=UUjGxuNIAufU923dtBuyC82A&amp;hl=en_US" frameborder="0" allowfullscreen></iframe>
 
-        <ul>
-          <li><a href="https://github.com/adib/RefreshableScrollView/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/adib/RefreshableScrollView/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/adib/RefreshableScrollView">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h3>Welcome to GitHub Pages.</h3>
+<h2>Getting Started</h2>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p>Attach <code>RefreshableScrollView.xcodeproj</code> into your OS X project and add <code>libRefreshableScrollView.a</code> as a dependency in your project. Also include the public header file <code>BSRefreshableScrollView.h</code> into your project&#39;s user header search paths.</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<p>Play around with the included example application to see the class in action and how it is being used. The video demo above shows a recording of this sample application.</p>
+
+<h2>How to use</h2>
+
+<p>Use <code>BSRefreshableScrollView</code> as a replacement of <code>NSScrollView</code>. If you use Xcode&#39;s interface builder to add instances of <code>NSTableView</code> or <code>NSOutlineView</code> (among others), by default it will enclose those objects inside an <code>NSScrollView</code>. Highlight this <code>NSScrollView</code> container, go to the object&#39; identity inspector and type in <code>BSRefreshableScrollView</code> as the scroll view&#39;s class name.</p>
+
+<p>Then you&#39;ll need to write a delegate that conforms to <code>BSRefreshableScrollViewDelegate</code> protocol. Most likely this will be the <code>xib</code>&#39;s file owner – a view controller or a window controller. Attach this delegate class to the <code>refreshableDelegate</code> outlet of the scroll view.</p>
+
+<p>In <code>awakeFromNib</code> method of the delegate, setup which sides that supports pull-to-refresh. This is important – without enabling these flags, <code>BSRefreshableScrollView</code> will behave just like a plain old <code>NSScrollView</code>. If you don&#39;t use <code>xib</code> files then you&#39;ll need to find an appropriate place to set these flags. Note that you can clear any of these flags to disable refresh for their respective sides even when the view is already visible.</p>
+
+<pre><code>-(void)awakeFromNib
+{
+    [super awakeFromNib];
+    self.refreshableScrollView.refreshableSides = BSRefreshableScrollViewSideTop | BSRefreshableScrollViewSideBottom;
+}
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p>Start the refresh process in your delegate by implementing method <code>scrollView: startRefreshSide:</code> and return <code>YES</code> if the process was successfully started. The scroll view will then display an indeterminate progress indicator at the appropriate edge. If for some reason you couldn&#39;t initiate refresh for that side, simply return <code>NO</code> and the scroll view will behave as if nothing happened.</p>
 
-<h3>Designer Templates</h3>
+<pre><code>#pragma mark BSRefreshableScrollViewDelegate
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+-(BOOL) scrollView:(BSRefreshableScrollView*) aScrollView startRefreshSide:(BSRefreshableScrollViewSide) refreshableSide
+{
+    if (refreshableSide == BSRefreshableScrollViewSideTop) {
+        // initiate refresh process for the top edge of the scroll view
+        // ...
+        return YES; // tell the scroll view to display the progress indicator
+    } else if (refreshableSide == BSRefreshableScrollViewSideBottom) {
+        // initiate refresh process for the bottom edge of the scroll view
+        // ...
+        return YES; 
+    }
+    return NO;
+}
+</code></pre>
 
-<h3>Rather Drive Stick?</h3>
+<p>When the refresh process have completed (i.e. the network service have returned a result or timed out), call <code>stopRefreshingSide:</code> and give it the appropriate edge to stop. If there was no refresh currently in progress at that side this calling this method will have no effect. For example:</p>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<pre><code>- (IBAction)stopRefreshTop:(id)sender
+{
+    [self.refreshableScrollView stopRefreshingSide:BSRefreshableScrollViewSideTop];
+}
+</code></pre>
 
-<h3>Authors and Contributors</h3>
+<h2>License</h2>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p>This project is licensed under the BSD license. Please let me know (<a href="mailto:adib@cutecoder.org">adib@cutecoder.org</a>) if you use it for something interesting.</p>
 
-<h3>Support or Contact</h3>
+<p><a href="https://github.com/adib/RefreshableScrollView">View project on Github</a></p>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/adib">adib</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
-    </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
-  </body>
-</html>
+<p>Sasmito Adibowo
+<a href="http://cutecoder.org">http://cutecoder.org</a></p>
+
