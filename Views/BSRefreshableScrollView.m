@@ -252,8 +252,6 @@
         NSView* documentView = superClipView.documentView;
         BSRefreshableClipView* clipView = [[BSRefreshableClipView alloc] initWithFrame:superClipView.frame];
         clipView.documentView = documentView;
-        clipView.copiesOnScroll = NO;
-        clipView.drawsBackground = NO;
         [self setContentView:clipView];
         superClipView = clipView;
     }
