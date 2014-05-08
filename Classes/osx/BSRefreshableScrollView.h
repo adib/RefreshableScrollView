@@ -21,12 +21,27 @@
 
 #import <Cocoa/Cocoa.h>
 
+/**
+ Indicates which sides that are refreshable. 
+*/
 enum {
     BSRefreshableScrollViewSideNone = 0,
+    /**
+    Pulling downwards will reveal a refresh indicator and when sufficiently pulled should trigger a data load for newer items.
+    */
     BSRefreshableScrollViewSideTop = 1,
+    /**
+    Pulling upwards will reveal a refresh indicator and when sufficiently pulled should trigger a data load for older items.
+    */
     BSRefreshableScrollViewSideBottom = 1 << 1,
     // left & right edges are for future expansion but not currently implemented
+    /**
+    Currently unimplemented.
+    */
     BSRefreshableScrollViewSideLeft = 1 << 2,
+    /**
+    Currently unimplemented.
+    */
     BSRefreshableScrollViewSideRight = 1 << 3
 };
 
@@ -38,16 +53,32 @@ typedef NSUInteger BSRefreshableScrollViewSide;
 @protocol BSRefreshableScrollViewDataSource;
 
 // ---
+
+/**
+ A scroll view that can be pulled downwards or upwards for the user to trigger refreshing of newer data or loading historical data.
+
+*/
 @interface BSRefreshableScrollView : NSScrollView
 
+/**
+Which sides are refreshable, of type BSRefreshableScrollViewSide
+*/
 @property (nonatomic) NSUInteger refreshableSides;
+
+/**
+Which sides are currently refreshing, of type BSRefreshableScrollViewSide
+*/
 @property (nonatomic,readonly) NSUInteger refreshingSides;
 
+/**
+ The object that will provide the refreshable data.
+*/
 @property (nonatomic,weak) IBOutlet id<BSRefreshableScrollViewDataSource> refreshableDataSource;
 @property (nonatomic,weak) IBOutlet id<BSRefreshableScrollViewDelegate> refreshableDelegate;
 
-@property (nonatomic,strong) IBOutlet NSView* topRefreshView;
-
+/**
+ Call this when you have loaded the data to dismiss the refresh progress indicator.
+*/
 -(void) stopRefreshingSide:(BSRefreshableScrollViewSide) refreshableSide;
 
 
@@ -55,19 +86,28 @@ typedef NSUInteger BSRefreshableScrollViewSide;
 
 // ---
 
+/**
+ The object that will provide the refreshable data.
+ This protocol is present for future implementation and currently empty 😏
+*/
 @protocol BSRefreshableScrollViewDataSource <NSObject>
 
-// for future expansion -- currently empty 😏
 
 @end
 
 
 // ---
-
+/**
+ The object that will provide the refreshable data.
+ This protocol is present for future implementation and currently empty 😏
+*/
 @protocol BSRefreshableScrollViewDelegate <NSObject>
 
 @optional
 
+/**
+ Called by the  scroll view to indicate that refresh should start.
+*/
 -(BOOL) scrollView:(BSRefreshableScrollView*) aScrollView startRefreshSide:(BSRefreshableScrollViewSide) refreshableSide;
 
 
