@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
                        * Get iOS like pull-to-refresh experience on OS X complete with pull indicator. 
                        * The bottom pulling upwards to reveal the bottom side will be good for loading older data.
                        DESC
-  s.homepage         = "https://github.com/adib/RefreshableScrollView"
+  s.homepage         = "http://cutecoder.org/tag/bsrefreshablescrollview/"
   s.screenshots      = "http://i0.wp.com/cutecoder.org/wp-content/uploads/2012/11/Bi-Directional-Refreshable-Scroll-View.png"
   s.license          = 'BSD'
   s.author           = { "Sasmito Adibowo" => "adib@basil-salad.com" }
