@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
   s.screenshots      = "http://i0.wp.com/cutecoder.org/wp-content/uploads/2012/11/Bi-Directional-Refreshable-Scroll-View.png"
   s.license          = 'BSD'
   s.author           = { "Sasmito Adibowo" => "adib@basil-salad.com" }
-  s.source           = { :git => "https://github.com/adib/RefreshableScrollView.git", :tag => s.version.to_s }
+  s.source           = { :git => "https://github.com/adib/RefreshableScrollView.git", :tag => 'release-' + s.version.to_s }
   s.social_media_url = 'https://www.facebook.com/cutecoder'
 
   # s.platform     = :osx, '10.8'
