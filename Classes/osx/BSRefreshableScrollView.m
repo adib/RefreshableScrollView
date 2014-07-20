@@ -250,9 +250,14 @@
     NSClipView* superClipView = [super contentView];
     if (![superClipView isKindOfClass:[BSRefreshableClipView class]]) {
         NSView* documentView = superClipView.documentView;
-        BSRefreshableClipView* clipView = [[BSRefreshableClipView alloc] initWithFrame:superClipView.frame];
+
+        BSRefreshableClipView* clipView = [[BSRefreshableClipView alloc] initWithOriginalClipView:superClipView];
+        NSDictionary* bindings = NSDictionaryOfVariableBindings(documentView);
         clipView.documentView = documentView;
+        [clipView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[documentView]|" options:0 metrics:nil views:bindings]];
+        [clipView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[documentView]|" options:0 metrics:nil views:bindings]];
         [self setContentView:clipView];
+
         superClipView = clipView;
     }
     return superClipView;

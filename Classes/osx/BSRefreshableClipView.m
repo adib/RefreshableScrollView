@@ -28,6 +28,23 @@
 
 @implementation BSRefreshableClipView
 
+-(instancetype) initWithOriginalClipView:(NSClipView*) clipView
+{
+    if (self = [super initWithFrame:clipView.frame]) {
+        [self setAutoresizingMask:[clipView autoresizingMask]];
+        [self setAutoresizesSubviews:[clipView autoresizesSubviews]];
+        [self setBackgroundColor:[clipView backgroundColor]];
+        [self setTranslatesAutoresizingMaskIntoConstraints:[clipView translatesAutoresizingMaskIntoConstraints]];
+        [self setCopiesOnScroll:[clipView copiesOnScroll]];
+        
+        // 10.9 only
+        if ([clipView respondsToSelector:@selector(canDrawSubviewsIntoLayer)] && [self respondsToSelector:@selector(setCanDrawSubviewsIntoLayer:)]) {
+            [self setCanDrawSubviewsIntoLayer:[clipView canDrawSubviewsIntoLayer]];
+        }
+    }
+    return self;
+}
+
 -(NSView*) headerView
 {
     return [(BSRefreshableScrollView*) self.superview headerView];

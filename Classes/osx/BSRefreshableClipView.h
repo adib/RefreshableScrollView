@@ -22,4 +22,6 @@
 
 @interface BSRefreshableClipView : NSClipView
 
+-(instancetype) initWithOriginalClipView:(NSClipView*) clipView;
+
 @end
